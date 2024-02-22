@@ -13,12 +13,13 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -170,6 +171,7 @@ fun LatestMovieScreen(
 
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PopularMoviesScreen(
     navController: NavHostController = rememberNavController(),
@@ -207,10 +209,12 @@ fun PopularMoviesScreen(
                 onValueChange = { searchText = it },
                 label = { Text("Search") },
                 leadingIcon = {Icon(imageVector = Icons.Filled.Search, contentDescription = null)}
+                     ,   colors = OutlinedTextFieldDefaults.colors(
+                 focusedTextColor = Color.Black              )
             )
 
 
-            LazyVerticalGrid(columns = GridCells.Fixed(3),
+            LazyVerticalGrid(columns = GridCells.Fixed(2),
                 modifier = Modifier.nestedScroll(nestedScrollConnection)
                 ) {
                 items(viewModel.movies.filter { searchText.isEmpty() || it.title?.startsWith(searchText, ignoreCase = true) == true }) { movie ->
