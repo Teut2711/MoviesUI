@@ -7,13 +7,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -35,6 +35,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -171,23 +172,20 @@ fun LatestMovieScreen(
 
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PopularMoviesScreen(
     navController: NavHostController = rememberNavController(),
     nestedScrollConnection: NestedScrollConnection,
     viewModel: MovieViewModel
 ) {
-    val page by remember {
+    var page by remember {
         mutableIntStateOf(1)
     }
     var searchText by remember { mutableStateOf("") }
 
-
-    LaunchedEffect(Unit) {
+    LaunchedEffect(page) {
         viewModel.fetchPopularMovies(page)
     }
-
     MoviesTheme {
 
         Column(
@@ -213,18 +211,27 @@ fun PopularMoviesScreen(
                  focusedTextColor = Color.Black              )
             )
 
-
+            Row{
+                Button(modifier=Modifier.width(150.dp), onClick = { if (page > 1) page-- }, enabled = page > 0) {
+                    Text("Back")
+                }
+                Button(modifier=Modifier.width(150.dp),onClick = { page++ }) {
+                    Text("Next")
+                }
+            }
             LazyVerticalGrid(columns = GridCells.Fixed(2),
                 modifier = Modifier.nestedScroll(nestedScrollConnection)
                 ) {
-                items(viewModel.movies.filter { searchText.isEmpty() || it.title?.startsWith(searchText, ignoreCase = true) == true }) { movie ->
+                items(items=viewModel.movies.filter { searchText.isEmpty() || it.title?.contains(searchText, ignoreCase = true) == true }
+                ,key={movie->movie.id}) { movie ->
                     ClickableMovieCard(movie = movie) {
                         navController.navigate("detail/${movie.id}")
                     }
                 }
 
             }
-    }
+
+        }
 }}
 
 
