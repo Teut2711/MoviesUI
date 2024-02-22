@@ -10,15 +10,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -139,6 +146,7 @@ fun LatestMovieScreen(
     }
 
     MoviesTheme {
+
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -171,11 +179,15 @@ fun PopularMoviesScreen(
     val page by remember {
         mutableIntStateOf(1)
     }
+    var searchText by remember { mutableStateOf("") }
+
+
     LaunchedEffect(Unit) {
         viewModel.fetchPopularMovies(page)
     }
 
     MoviesTheme {
+
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -190,18 +202,24 @@ fun PopularMoviesScreen(
             Button(onClick = { navController.navigate("latest")}) {
                 Text("Go to latest Movie")
             }
+            OutlinedTextField(
+                value = searchText,
+                onValueChange = { searchText = it },
+                label = { Text("Search") },
+                leadingIcon = {Icon(imageVector = Icons.Filled.Search, contentDescription = null)}
+            )
+
 
             LazyVerticalGrid(columns = GridCells.Fixed(3),
                 modifier = Modifier.nestedScroll(nestedScrollConnection)
                 ) {
-                items(viewModel.movies) { movie ->
-
+                items(viewModel.movies.filter { searchText.isEmpty() || it.title?.startsWith(searchText, ignoreCase = true) == true }) { movie ->
                     ClickableMovieCard(movie = movie) {
                         navController.navigate("detail/${movie.id}")
                     }
-                    }
+                }
 
-        }
+            }
     }
 }}
 

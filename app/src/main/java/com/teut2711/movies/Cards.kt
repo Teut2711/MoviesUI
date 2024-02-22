@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
@@ -31,6 +32,9 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import org.teut2711.models.Movie
 import org.teut2711.models.MovieDetails
+import java.text.DateFormat
+import java.util.Locale
+import kotlin.math.round
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,10 +59,32 @@ fun ClickableMovieCard(movie: Movie, onClick:() -> Unit) {
             contentDescription = movie.title,
 
             )
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .background(color = Color.Black, shape = CircleShape)
+        ) {
+            Text(
+                text = round(movie.voteAverage*10).toString() +"%" ,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White, // Text color is set to white
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+        }
 
         Text(text = if(movie.title !=null) movie.title else "Unspecified",
             style = MaterialTheme.typography.bodyMedium,
             color = Color.Blue,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+        val formattedDate = movie.releaseDate?.let {
+            DateFormat.getDateInstance(DateFormat.LONG, Locale.getDefault()).format(it)
+        }.orEmpty()
+        Text(text = formattedDate,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.Black,
             textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
