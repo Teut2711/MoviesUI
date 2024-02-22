@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -21,19 +22,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.teut2711.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.delay
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,17 +59,25 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.background,
+                    color = Color.White,
                 ) {
-                    NavHost( navController = navController, startDestination = "popular") {
-                        composable("latest") { LatestMoviePreview(navController, viewModel ) }
-                        composable("popular") { PopularMoviesPreview(navController,nestedScrollConnection, viewModel) }
-                        composable("detail/{movieId}") { backStackEntry ->
-                            val movieId = backStackEntry.arguments?.getInt("movieId") ?: 0
-                            MovieDetailsPreview(navController,viewModel, movieId)
+                    NavHost( navController = navController, startDestination = "latest") {
+                        composable("latest") { LatestMovieScreen(navController, viewModel ) }
+                        composable("popular") { PopularMoviesScreen(navController,nestedScrollConnection, viewModel) }
+                        composable(
+                            route = "detail/{movieId}",
+                            arguments = listOf(navArgument("movieId") { type = NavType.IntType })
+                        ) {
+                             backStackEntry ->
+    val movieId = backStackEntry.arguments!!.getInt("movieId")
+    MovieDetailsScreen(navController,viewModel, movieId)
+
+
+
                         }
 
-                    }
+
+                                       }
 
                 }
                 }
@@ -77,8 +87,8 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun MovieDetailsPreview(    navController: NavHostController = rememberNavController(),
-                            viewModel: MovieViewModel, movieId: Int) {
+fun MovieDetailsScreen(navController: NavHostController = rememberNavController(),
+                       viewModel: MovieViewModel, movieId: Int) {
 
     LaunchedEffect(Unit) {
 
@@ -91,13 +101,23 @@ fun MovieDetailsPreview(    navController: NavHostController = rememberNavContro
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+
             Text(
-                text = "${viewModel.movie}",
+                text =  if (viewModel.movieDetails.title != null) viewModel.movieDetails.title else "Unspecified",
                 style = MaterialTheme.typography.displayMedium,
-                color = androidx.compose.ui.graphics.Color.Blue,
+                color = Color.Blue,
                 textAlign = TextAlign.Center
             )
-            MovieCard(viewModel.movie)
+            Row {
+                Button(onClick = { navController.navigate("popular")}) {
+                    Text("Go to Popular Movies")
+                }
+                Button(onClick = { navController.navigate("latest")}) {
+                    Text("Go to latest Movie")
+                }
+
+            }
+            MovieCard(viewModel.movieDetails)
 
         }
 
@@ -105,14 +125,10 @@ fun MovieDetailsPreview(    navController: NavHostController = rememberNavContro
 
 }
 
-@Preview
-@Composable
-fun MoviePreview() {
-    LatestMoviePreview(rememberNavController(), viewModel())
-}
+
 
 @Composable
-fun LatestMoviePreview(
+fun LatestMovieScreen(
     navController: NavHostController = rememberNavController(), viewModel: MovieViewModel) {
 
     LaunchedEffect(Unit) {
@@ -131,13 +147,13 @@ fun LatestMoviePreview(
             Text(
                 text = "Latest Movie",
                 style = MaterialTheme.typography.displayMedium,
-                color = androidx.compose.ui.graphics.Color.Blue,
+                color = Color.Blue,
                 textAlign = TextAlign.Center
             )
             Button(onClick = { navController.navigate("popular")}) {
                 Text("Go to Popular Movies")
             }
-            MovieCard(viewModel.movie)
+            MovieCard(viewModel.movieLatest)
 
         }
 
@@ -147,7 +163,7 @@ fun LatestMoviePreview(
 
 
 @Composable
-fun PopularMoviesPreview(
+fun PopularMoviesScreen(
     navController: NavHostController = rememberNavController(),
     nestedScrollConnection: NestedScrollConnection,
     viewModel: MovieViewModel
@@ -168,13 +184,18 @@ fun PopularMoviesPreview(
             Text(
                 text = "Popular Movies",
                 style = MaterialTheme.typography.displayMedium,
-                color = androidx.compose.ui.graphics.Color.Blue,
+                color = Color.Blue,
                 textAlign = TextAlign.Center
             )
+            Button(onClick = { navController.navigate("latest")}) {
+                Text("Go to latest Movie")
+            }
+
             LazyVerticalGrid(columns = GridCells.Fixed(3),
                 modifier = Modifier.nestedScroll(nestedScrollConnection)
                 ) {
                 items(viewModel.movies) { movie ->
+
                     ClickableMovieCard(movie = movie) {
                         navController.navigate("detail/${movie.id}")
                     }

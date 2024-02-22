@@ -15,8 +15,9 @@ class MovieViewModel : ViewModel() {
     var errorMessage by mutableStateOf<String?>(null)
     var isLoading by mutableStateOf(true)
     var movies by mutableStateOf<List<Movie>>(emptyList())
-    var movie by mutableStateOf<MovieDetails>(MovieDetails())
+    var movieLatest by mutableStateOf(MovieDetails())
 
+    var movieDetails by mutableStateOf(MovieDetails())
 
     suspend fun fetchPopularMovies(page:Int){
 
@@ -48,7 +49,7 @@ class MovieViewModel : ViewModel() {
                 movieService.latestMovie
             }
 
-            movie = fetchedMovie
+            movieLatest = fetchedMovie
             isLoading = false
         } catch (e: Exception) {
             errorMessage = e.message
@@ -66,7 +67,7 @@ class MovieViewModel : ViewModel() {
                 movieService.getMovieDetails(id)
             }
 
-            movie = fetchedMovie
+            movieDetails = fetchedMovie
             isLoading = false
         } catch (e: Exception) {
             errorMessage = e.message
