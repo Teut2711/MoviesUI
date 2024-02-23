@@ -15,9 +15,8 @@ To get started with this app, follow these steps:
 
 ```bash
 git clone https://github.com/Teut2711/MoviesUI.git
+```
+## Demo
 
-
-
-
-https://github.com/Teut2711/MoviesUI/assets/40588378/034989cf-d446-47ea-9d41-910ecb8e8537
+![output](https://github.com/Teut2711/MoviesUI/assets/40588378/206f45da-a26d-43dc-a439-959d2c20bf52)
 
